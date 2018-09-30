@@ -3,68 +3,87 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no"/>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous"/>
+    <link rel="stylesheet" type="text/css" href="./assets/css/style.css"/>
     <title>Rock Paper Scissors-Multiplayer Game</title>
 </head>
 <body>
-    <div class="container-fluid py-2">
-        <div class="row jumbotron jumbotron-fluid border border-dark">
-            <div class="container">
-                <h1>Rock, Paper, Scissors!</h1>
-                <p class="lead">Version-Multiplayer Game</p>
-            </div>
+    <div class="container-fluid pb-2">
+        <div class="row pt-3 bg-info text-light">
+            <h1 class="w-100 text-center">Rock, Paper, Scissors!</h1>
+            <p class="w-100 text-center">Version-Multiplayer Game</p>
         </div>
-        <div id="playPromptDiv" class="row border border-dark py-3">
-                <p class="text-center w-100 border border-danger">Would you like to play?</p>
+        <div id="playPromptDiv" class="row py-3">
+                <p class="text-center w-100 h5">Would you like to play?</p>
                 <div class="mx-auto">
-                    <button class="btn-lg btn-success">Yes</button>
-                    <button class="btn-lg btn-danger">No</button>
+                    <button data-toggle="collapse" href="#userFormDiv" aria-expanded="false" aria-controls="userFormDiv" class="btn-lg btn-outline-info"><img src="./assets/imgs/checkmark.png" class="mr-2">Yes</button>
+                    <button data-toggle="collapse" href="#userFormDiv" aria-expanded="true" aria-controls="userFormDiv" class="btn-lg btn-outline-dark"><img src="./assets/imgs/crossmark.png" class="mr-2">No</button>
                 </div>
         </div>
-        <div id="userFormDiv" class="row border border-dark">
-            <p class="border border-warning w-100">Choose a Display Name</p>
-            <form class="form-inline border border-warning w-100">
-                <label class="w-sm-25">Display Name:</label>
-                <input type="text" placeholder="Enter a display name" class="form-control w-sm-50"/>
+        <hr>
+        <div id="userFormDiv" class="row p-2 collapse">
+            <p class="h5 w-100">Choose a Display Name</p>
+            <form class="form-inline w-100">
+                <label>Display Name:</label>
+                <input type="text" placeholder="Enter a display name" class="form-control ml-sm-2"/>
             </form>
         </div>
-        <div id="gameAlertsDiv" class="row border border-dark">
-            <p id="gameAlertText">Game in Progress</p>
+        <hr>
+        <div id="gameAlertsDiv" class="row text-center alert alert-info d-none">
+            Game Currently in Progress...
         </div>
-        <div id="gameStatsDiv" class="row border border-dark">
+        <div id="gameChoicesDiv" class="row my-2 d-none">
+            <a href="#" role="button" class="row-sm col-md"><div value="rock" class="card my-1 bg-dark text-light">
+                <img src="./assets/imgs/rock.jpg" class="card-img-top"/>
+                <div class="card-body p-2">
+                    <h3 class="card-title h4">Rock</h3>
+                </div>
+            </div></a>
+            <a href="#" role="button" class=" row-sm col-md"><div value="paper" class="card my-1 bg-dark text-light">
+                <img src="./assets/imgs/paper.jpg" class="card-img-top"/>
+                <div class="card-body p-2">
+                    <h3 class="card-title">Paper</h3>
+                </div>
+            </div></a>
+            <a href="#" role="button" class=" row-sm col-md"><div value="scissors" class="card my-1 bg-dark text-light">
+                <img src="./assets/imgs/scissors.jpg" class="card-img-top"/>
+                <div class="card-body p-2">
+                    <h3 class="card-title">Scissors</h3>
+                </div>
+            </div></a>
+        </div>
+        <div id="gameStatsDiv" class="row py-3 d-none">
             <div class="col-sm row-md">
-                <p>Wins: <span id="winsText">0</span></p>
+                <p class="h4">Wins: <span id="winsText">0</span></p>
             </div>
             <div class="col-sm row-md">
-                <p>Losses: <span id="lossesText">0</span></p>
+                <p class="h4">Losses: <span id="lossesText">0</span></p>
             </div>
         </div>
-        <div id="gameChoicesDiv" class="row border border-dark">
-            <div value="rock" class="row-sm col-md py-2 btn btn-danger">
-                <p>Rock</p>
-                <img src="./assets/imgs/rock.jpg" class="w-50"/>
+        <div id="gameProgressDiv" class="row">
+            <div id="matchWinnerDiv" class="row-sm col-md order-md-2 py-3 mb-2 text-center">
+                <p id="winnerText" class="h3">No Game in Progress</p>
             </div>
-            <div value="paper" class="row-sm col-md py-2 border border-warning">
-                <p>Paper</p>
-                <img src="./assets/imgs/paper.jpg" class="w-50"/>
+            <div id="player1Div" class="row-sm col-md order-md-1 card border-dark p-0 mx-3 mb-2">
+                <div id="player1Username" class="h4 card-header bg-info text-white text-center">Player 1 <span class="badge badge-pill badge-dark text-white ml-2 d-none">Winner</span></div>
+                <img id="player1ChoiceImg" src="./assets/imgs/rock.jpg" class="card-img d-none"/>
+                <div id="player1ChoiceText" class="card-header bg-dark text-light">
+                    <h2 class="h4">No Selection Made</h2>
+                </div>
             </div>
-            <div value="scissors" class="row-sm col-md py-2 border border-warning">
-                <p>Scissors</p>
-                <img src="./assets/imgs/scissors.jpg" class="w-50"/>
+            <div id="player2Div" class="row-sm col-md order-md-3 card border-dark p-0 mx-3 mb-2">
+                <div id="player2Username" class="h4 card-header bg-info text-white text-center">Player 2 <span class="badge badge-pill badge-dark text-white ml-2 d-none">Winner</span></div>
+                <img id="player2ChoiceImg" src="./assets/imgs/scissors.jpg" class="card-img d-none"/>
+                <div id="player2ChoiceText" class="card-header bg-dark text-light">
+                    <h2 class="h4">No Selection Made</h2>
+                </div>
             </div>
         </div>
-        <div id="gameProgressDiv" class="row border border-dark">
-            <div id="matchWinnerDiv" class="row-sm col-md order-md-2 border border-warning">
-                <p id="winnerText">Tie! No Winner this Round</p>
-            </div>
-            <div id="player1Div" class="row-sm col-md order-md-1 border border-warning">
-                <p id="player1Username">Player 1</p>
-                <div id="player1Choice">Rock</div>
-            </div>
-            <div id="player2Div" class="row-sm col-md order-md-3 border border-warning">
-                <p id="player2Username">Player 2</p>
-                <div id="player2Choice">Rock</div>
-            </div>
+        <div class="row">
+            <a href="https://icons8.com" class="mx-auto">Icon pack by Icons8</a>
         </div>
     </div>
 
