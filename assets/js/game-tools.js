@@ -1,7 +1,7 @@
 var alertClass = "row text-center alert";
 var gameInProgress = "false";
 var newUsername;
-var playerCount;
+// var playerCount;
 
 /* function handles display of #userFormDiv, displaying and hiding it based on user's click. */
 function collapseForm() {
@@ -24,10 +24,18 @@ function collapseForm() {
 /* function handles the submit click event of #userFormDiv */
 function submitUsername(event) {
     event.preventDefault();
+    console.log("subitUsername validates form");
     let validEntry = validateForm();
     if(validEntry) {
+        console.log("Form is valid. Form sets newUsername variable.");
         newUsername = $("#nameInput").val().trim();
-        $("#nameInput").empty();
+        $("#nameInput").val("");
+        /* function checks firebase database for value of player_Count if it exist.s */
+        console.log("Form runs playerCountSetup function. Then runs playerSetup function once promise is completed.");
+        playerCountSetup();
+    }
+    else {
+        console.log("Form is not valid.");
     }
 }
 
@@ -83,17 +91,59 @@ var database = firebase.database();
 var dbPlayerCount = database.ref("player_Count");
 var dbPlayers = database.ref("players");
 
+/* function checks if player_Count is a key that exists on firebase. If not, it sets it up with a value of 0. Otherwise it sets playerCount to the current value. */
 function playerCountSetup() {
-    dbPlayerCount.on("value", function(snapshot) {
+    var playerCount;
+    console.log("Inside playerCountSetup function.");
+    dbPlayerCount.once("value", function(snapshot) {
         // console.log($.type(snapshot.val()));
+        console.log("checking database");
         if($.type(snapshot.val()) === "null"){
             console.log("No player count.");
             database.ref().set({
                 player_Count: 0
             });
+            playerCount = 0;
         }
         else {
             playerCount = snapshot.val();
+            console.log("player_Count exists. Current value is " + snapshot.val());
         }
+        new Promise(function(resolve) {
+                resolve(playerCount);
+        }).then(successResult);
     });
+}
+
+function playerSetup(playerCount) {
+    console.log("Inside playerSetup function.");
+    console.log("Value of playerCount passed through playerSetup function is " + playerCount);
+    /*adds 1 to playerCount var, then sets database key player_Count to updated value of playerCount var */
+    playerCount++;
+    console.log("New count is " + playerCount + ". Database updated with new playerCount.");
+    database.ref().update({
+        player_Count: playerCount
+    });
+    let playerInfo = {};
+    playerInfo["player" + playerCount] = {
+        username: newUsername
+    }
+    console.log("Database updated with new player info.");
+    database.ref("players").update(playerInfo);
+    console.log("New player fully setup.")
+}
+
+function successResult(playerCount) {
+    new Promise(function(resolve) {
+        playerSetup(playerCount);
+        resolve();
+    });
+}
+/* alerts user to something going wrong when a function promise fails */
+function errorResult() {
+    $("#gameAlertsDiv").html("Whoops! Something went wrong.");
+    $("#gameAlertsDiv").attr("class", alertClass + " alert-danger");
+    $("#gameAlertsDiv").toggle(true);
+    console.log("Problem with playerCountSetup function.");
+    resolve("Problem with playerCountSetup function.");
 }
