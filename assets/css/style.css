@@ -5,3 +5,6 @@ button img {
     max-width: 25px;
     height: auto;
 }
+#gameAlertsDiv {
+    display: none;
+}
