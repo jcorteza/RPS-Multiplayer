@@ -1,8 +1,6 @@
-const alertClass = "row text-center alert";
+var alertClass = "row text-center alert";
+var gameInProgress = "false";
 
-
-$("form").noValidate = true;
-$("form").onSubmit = validateForm;
 /* function handles display of #userFormDiv, displaying and hiding it based on user's click. */
 function collapseForm() {
     let action;
@@ -24,7 +22,11 @@ function collapseForm() {
 /* function handles the submit click event of #userFormDiv */
 function submitUsername(event) {
     event.preventDefault();
-    validateForm();
+    let validEntry = validateForm();
+    if(validEntry) {
+        let newUsername = $("#nameInput").val().trim();
+        $("#nameInput").empty();
+    }
 }
 
 function validateForm() {
@@ -37,6 +39,7 @@ function validateForm() {
         $("#gameAlertsDiv").html("That display name is <em>just</em> right!");
         $("#gameAlertsDiv").attr("class", alertClass + " alert-success");
         $("#gameAlertsDiv").toggle(true);
+        return formValid;
     }
     else {
         if(inputValid.badInput){
