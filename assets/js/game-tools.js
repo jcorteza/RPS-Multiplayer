@@ -1,5 +1,7 @@
 var alertClass = "row text-center alert";
 var gameInProgress = "false";
+var newUsername;
+var playerCount;
 
 /* function handles display of #userFormDiv, displaying and hiding it based on user's click. */
 function collapseForm() {
@@ -24,11 +26,12 @@ function submitUsername(event) {
     event.preventDefault();
     let validEntry = validateForm();
     if(validEntry) {
-        let newUsername = $("#nameInput").val().trim();
+        newUsername = $("#nameInput").val().trim();
         $("#nameInput").empty();
     }
 }
 
+/* checks the user's input in the page's form for validation against form pattern set in HTML */
 function validateForm() {
     const form = $("form")[0];
     const input = form[0];
@@ -61,50 +64,36 @@ function validateForm() {
         $("#gameAlertsDiv").attr("class", alertClass + " alert-danger");
         $("#gameAlertsDiv").toggle(true);
     }
-    /* checks to see if #nameInput is an empty string */
-    /*if(!nameVal) {
-        $("#gameAlertsDiv").html("Display name need to be filled out in order to play. Please enter a 5 to 9 character display name for the game.");
-        alertClass = $("#gameAlertsDiv").attr("class");
-        alertClass = alertClass + " alert-danger";
-        $("#gameAlertsDiv").attr("class", alertClass);
-        $("#gameAlertsDiv").toggle(true);
-    }
-    else if(nameVal) {
-        if(nameVal.length < 5) {
-            let isValid = form.checkValidity();
-            console.log(isValid);
-            console.log(input.validity);
-            console.log(input.validity.patternMismatch);
-            $("#gameAlertsDiv").html("That display name is too short!");
-            alertClass = $("#gameAlertsDiv").attr("class");
-            alertClass = alertClass + " alert-danger";
-            $("#gameAlertsDiv").attr("class", alertClass);
-            $("#gameAlertsDiv").toggle(true);
+}
+
+/* firebase configuration variable */
+var config = {
+    apiKey: "AIzaSyAdX2ZA_iInB8Lj-U2ZSwIxESVcbc58Mik",
+    authDomain: "rps-multiplayer-17cb8.firebaseapp.com",
+    databaseURL: "https://rps-multiplayer-17cb8.firebaseio.com",
+    projectId: "rps-multiplayer-17cb8",
+    storageBucket: "rps-multiplayer-17cb8.appspot.com",
+    messagingSenderId: "802119263442"
+  };
+
+// Initialize Firebase
+firebase.initializeApp(config);
+
+var database = firebase.database();
+var dbPlayerCount = database.ref("player_Count");
+var dbPlayers = database.ref("players");
+
+function playerCountSetup() {
+    dbPlayerCount.on("value", function(snapshot) {
+        // console.log($.type(snapshot.val()));
+        if($.type(snapshot.val()) === "null"){
+            console.log("No player count.");
+            database.ref().set({
+                player_Count: 0
+            });
         }
-        else if(nameVal.length > 9) {
-            let isValid = form.checkValidity();
-            console.log(isValid);
-            console.log(input.validity);
-            console.log(input.validity.patternMismatch);
-            $("#gameAlertsDiv").html("That display name is too long!");
-            alertClass = $("#gameAlertsDiv").attr("class");
-            alertClass = alertClass + " alert-danger";
-            $("#gameAlertsDiv").attr("class", alertClass);
-            $("#gameAlertsDiv").toggle(true);
+        else {
+            playerCount = snapshot.val();
         }
-        else if(5 <= nameVal.length <= 9) {
-            console.log("Just right.");
-            if(!form.checkValidity()) {
-                console.log(input.validity.badInput);
-                console.log(input.validity.customError);
-                console.log(input.validity.patternMismatch);
-                console.log(input.validity.badInput);
-                console.log(input.validity.badInput);
-                console.log(input.validity.badInput);
-                console.log(input.validity.badInput);
-                console.log(input.validity.badInput);
-                console.log(input.validity.badInput);
-            }
-        }
-    }*/
+    });
 }
