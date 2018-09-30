@@ -1,7 +1,6 @@
 var alertClass = "row text-center alert";
 var gameInProgress = "false";
 var newUsername;
-// var playerCount;
 
 /* function handles display of #userFormDiv, displaying and hiding it based on user's click. */
 function collapseForm() {
@@ -19,6 +18,7 @@ function collapseForm() {
         $("#formHr").attr("class", "d-none");
     }
     $(".collapse").collapse(action);
+    $("#playPromptDiv").add("#promptHr").toggle(false);
 }
 
 /* function handles the submit click event of #userFormDiv */
@@ -30,9 +30,11 @@ function submitUsername(event) {
         console.log("Form is valid. Form sets newUsername variable.");
         newUsername = $("#nameInput").val().trim();
         $("#nameInput").val("");
-        /* function checks firebase database for value of player_Count if it exist.s */
-        console.log("Form runs playerCountSetup function. Then runs playerSetup function once promise is completed.");
+        /* function checks firebase database for value of player_Count if it exist. Then uses a returned promist to run playerSetup function */
         playerCountSetup();
+        /* Hides the form and "Do you want to play prompt. */
+        $("#formHr").attr("class", "d-none");
+        $(".collapse").collapse("hide");
     }
     else {
         console.log("Form is not valid.");
@@ -114,13 +116,17 @@ function playerCountSetup() {
         }).then(successResult);
     });
 }
-
+/* function handles the successful resolve of playerCountSetup promise and initiates playerSetup f */
+function successResult(playerCount) {
+    new Promise(function(resolve) {
+        playerSetup(playerCount);
+        resolve();
+    });
+}
+/* function updats player_Count on the databse and adds new user to the database */
 function playerSetup(playerCount) {
-    console.log("Inside playerSetup function.");
-    console.log("Value of playerCount passed through playerSetup function is " + playerCount);
     /*adds 1 to playerCount var, then sets database key player_Count to updated value of playerCount var */
     playerCount++;
-    console.log("New count is " + playerCount + ". Database updated with new playerCount.");
     database.ref().update({
         player_Count: playerCount
     });
@@ -128,22 +134,9 @@ function playerSetup(playerCount) {
     playerInfo["player" + playerCount] = {
         username: newUsername
     }
-    console.log("Database updated with new player info.");
     database.ref("players").update(playerInfo);
     console.log("New player fully setup.")
-}
-
-function successResult(playerCount) {
-    new Promise(function(resolve) {
-        playerSetup(playerCount);
-        resolve();
-    });
-}
-/* alerts user to something going wrong when a function promise fails */
-function errorResult() {
-    $("#gameAlertsDiv").html("Whoops! Something went wrong.");
-    $("#gameAlertsDiv").attr("class", alertClass + " alert-danger");
-    $("#gameAlertsDiv").toggle(true);
-    console.log("Problem with playerCountSetup function.");
-    resolve("Problem with playerCountSetup function.");
+    setTimeout(function() {
+        $("#gameAlertsDiv").toggle(false)
+    }, 4000);
 }
