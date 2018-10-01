@@ -61,29 +61,19 @@ function gameProgress() {
 }
 
 function waitInLine() {
-    spotInLine = 0;
-    promiseWorks = new Promise(function(resolve){
-        new Promise(function(resolve) {
-            dbPlayers.orderByKey().once("value", function(snapshot){
-                console.log(userKey);
-                new Promise(function(resolve) {
-                    snapshot.forEach(function(childSnapshot){
-                        spotInLine++;
-                        console.log(spotInLine);
-                        console.log(childSnapshot.key);
-                        if(childSnapshot.key === userKey){
-                            console.log("Keys match.");
-                            return;
-                        }
-                    });
+    return new Promise(function(resolve) {
+        spotInLine = 0;
+        dbPlayers.orderByKey().once("value", function(snapshot){
+            console.log(userKey);
+            snapshot.forEach(function(childSnapshot){
+                spotInLine++;
+                if(childSnapshot.key === userKey){
+                    console.log("Keys match.");
                     resolve();
-                });
+                }
             });
-            resolve();
         });
-        resolve();
     });
-    return promiseWorks;
 }
 
 
