@@ -25,18 +25,13 @@ function collapseForm() {
 /* function checks the validity of the user's entry on click event of #userFormDiv */
 function userNameValidty(event) {
     event.preventDefault();
-    console.log("subitUsername validates form");
     /* runs function validateFrom and returns true if valid or falise if not valid */
     let validEntry = validateForm();
     if(validEntry) {
-        console.log("Form is valid.");
         /* sets gloval varialbe newUsername equal to whatever the user entered */
         newUsername = $("#nameInput").val().trim();
         /* passes newUsername to checkUsername function which checks to see if the user's entry is already in use on the database */
         checkUsername(newUsername);
-    }
-    else {
-        console.log("Form is not valid.");
     }
 }
 
@@ -113,7 +108,6 @@ function checkUsername(newUsername) {
     }).then(function(){
         new Promise(function(resolve) {
             if(inUse) {
-                console.log("Sorry, that display name is in use.");
                 $("#gameAlertsDiv").html("Sorry, that display name is in use. Try another one.");
                 $("#gameAlertsDiv").attr("class", alertClass + " alert-danger");
                 $("#gameAlertsDiv").toggle(true);
@@ -140,12 +134,9 @@ function checkUsername(newUsername) {
 /* function checks if player_Count is a key that exists on firebase. If not, it sets it up with a value of 0. Otherwise it sets playerCount to the current value. */
 function playerCountSetup() {
     var playerCount;
-    console.log("Inside playerCountSetup function.");
     dbPlayerCount.once("value", function(snapshot) {
         // console.log($.type(snapshot.val()));
-        console.log("checking database");
         if($.type(snapshot.val()) === "null"){
-            console.log("No player count.");
             database.ref().set({
                 player_Count: 0
             });
@@ -153,7 +144,6 @@ function playerCountSetup() {
         }
         else {
             playerCount = snapshot.val();
-            console.log("player_Count exists. Current value is " + snapshot.val());
         }
         new Promise(function(resolve) {
                 resolve(playerCount);
