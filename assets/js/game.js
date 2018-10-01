@@ -4,16 +4,3 @@ $("#noPlay").on("click", collapseForm);
 
 /* event listener binds submitBtn click to submitUsername */
 $("#submitBtn").on("click", userNameValidty);
-
-/*
-if(database.ref("/player_Count")){
-    playerCount = database.ref("/player_Count");
-    playerCount++;
-    database.ref().update({
-        player_Count: playerCount,
-    })
-    database.ref("/players/player" + playerCount).push({
-        username: newUsername
-    });
-}
-*/

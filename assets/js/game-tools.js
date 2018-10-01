@@ -1,5 +1,5 @@
 var alertClass = "row text-center alert";
-var gameInProgress = "false";
+var gameInProgress = false;
 var newUsername;
 var userKey;
 
@@ -183,4 +183,20 @@ function playerSetup(playerCount) {
     usernameInfo[newUsername] = true;
     database.ref("usernames").update(usernameInfo);
     console.log("New player fully setup.")
+}
+
+function gameProgress() {
+    console.log("Inside gameProgress function.");
+    if(gameInProgress) {
+        console.log("There is a game in progress");
+        $("#gameAlertsDiv").html("There is currently a game in progress.");
+        $("#gameAlertsDiv").attr("class", alertClass + " alert-info");
+        $("#gameAlertsDiv").toggle(true);
+    }
+    else if(newUsername && !gameInProgress){
+        console.log("There is NOT a game in progress");
+        $("#gameAlertsDiv").html("Your move! Take your pick.");
+        $("#gameAlertsDiv").attr("class", alertClass + " alert-info");
+        $("#gameAlertsDiv").toggle(true);
+    }
 }
