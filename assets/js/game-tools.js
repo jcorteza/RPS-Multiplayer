@@ -1,5 +1,5 @@
 var alertClass = "row text-center alert";
-var gameInProgress = "false";
+var gameInProgress = false;;
 var newUsername;
 
 /* function handles display of #userFormDiv, displaying and hiding it based on user's click. */
@@ -24,18 +24,14 @@ function collapseForm() {
 /* function checks the validity of the user's entry on click event of #userFormDiv */
 function userNameValidty(event) {
     event.preventDefault();
-    console.log("subitUsername validates form");
     /* runs function validateFrom and returns true if valid or falise if not valid */
     let validEntry = validateForm();
     if(validEntry) {
-        console.log("Form is valid.");
+        // console.log("Form is valid.");
         /* sets gloval varialbe newUsername equal to whatever the user entered */
         newUsername = $("#nameInput").val().trim();
         /* passes newUsername to checkUsername function which checks to see if the user's entry is already in use on the database */
         checkUsername(newUsername);
-    }
-    else {
-        console.log("Form is not valid.");
     }
 }
 
@@ -139,12 +135,10 @@ function checkUsername(newUsername) {
 /* function checks if player_Count is a key that exists on firebase. If not, it sets it up with a value of 0. Otherwise it sets playerCount to the current value. */
 function playerCountSetup() {
     var playerCount;
-    console.log("Inside playerCountSetup function.");
     dbPlayerCount.once("value", function(snapshot) {
         // console.log($.type(snapshot.val()));
-        console.log("checking database");
         if($.type(snapshot.val()) === "null"){
-            console.log("No player count.");
+            // console.log("No player count.");
             database.ref().set({
                 player_Count: 0
             });
@@ -152,7 +146,6 @@ function playerCountSetup() {
         }
         else {
             playerCount = snapshot.val();
-            console.log("player_Count exists. Current value is " + snapshot.val());
         }
         new Promise(function(resolve) {
                 resolve(playerCount);
@@ -173,15 +166,47 @@ function playerSetup(playerCount) {
     database.ref().update({
         player_Count: playerCount
     });
-    /* sets up a child object with a dynamic key name for players and adds it to the database*/
-    let playerInfo = {};
-    playerInfo["player" + playerCount] = {
+    userKey = database.ref("players").push({
         username: newUsername
-    }
-    database.ref("players").update(playerInfo);
+    }).key;
+    console.log("User key is " + userKey);
     /* sets up a child object with a dynamic key name for usernames and adds it to the database. The "usernames" child will be referenced to check if name is already in use. */
     let usernameInfo = {};
     usernameInfo[newUsername] = true;
     database.ref("usernames").update(usernameInfo);
-    console.log("New player fully setup.")
+}
+
+/* function checks if a game is in progress */
+function gameProgress() {
+    console.log("Inside gameProgress function.");
+    if(gameInProgress) {
+        console.log("There is a game in progress.");
+        $("#gameAlertsDiv").html("There is a game in progress. There are " + playersWaiting + "players waiting in line ahead of you.");
+        $("#gameAlertsDiv").attr("class", alertClass + " alert-info");
+        $("#gameAlertsDiv").toggle(true);
+        $("#gameChoicesDiv").toggle(false);
+    }
+    else if(newUsername && !gameInProgress) {
+        console.log("There is a NOT a game in progress.");
+        $("#gameAlertsDiv").html("Your move! Pick.");
+        $("#gameAlertsDiv").attr("class", alertClass + " alert-info");
+        $("#gameAlertsDiv").toggle(true);
+        $("#gameChoicesDiv").toggle(true);
+    }
+}
+
+function waitingPlayers() {
+    let totalPlayers;
+    let playersWaiting;
+    dbPlayerCount.on("value", function(snapshot) {
+        totalPlayers = snapshot.val();
+        playerWaiting = totalPlayers - 3;
+        console.log("Players currently waiting in line: " + playersWaiting);
+    });  
+    if(playersWaiting > 0) {
+        gameInProgress = true;
+    }
+    else if(playersWaiting - 2 <= 0) {
+        console.log("Your turn to pick.");
+    }
 }
