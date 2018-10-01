@@ -1,6 +1,7 @@
 var alertClass = "row text-center alert";
 var gameInProgress = "false";
 var newUsername;
+var userKey;
 
 /* function handles display of #userFormDiv, displaying and hiding it based on user's click. */
 function collapseForm() {
@@ -173,12 +174,10 @@ function playerSetup(playerCount) {
     database.ref().update({
         player_Count: playerCount
     });
-    /* sets up a child object with a dynamic key name for players and adds it to the database*/
-    let playerInfo = {};
-    playerInfo["player" + playerCount] = {
+    userKey = database.ref("players").push({
         username: newUsername
-    }
-    database.ref("players").update(playerInfo);
+    }.key);
+    console.log("User key is " + userKey);
     /* sets up a child object with a dynamic key name for usernames and adds it to the database. The "usernames" child will be referenced to check if name is already in use. */
     let usernameInfo = {};
     usernameInfo[newUsername] = true;
