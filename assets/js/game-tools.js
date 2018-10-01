@@ -164,15 +164,15 @@ function playerSetup(playerCount) {
     database.ref().update({
         player_Count: playerCount
     });
-    userKey = database.ref("players").push({
+    userKey = database.ref().child("players").push({
         username: newUsername
-    }.key);
+    }).key;
     console.log("User key is " + userKey);
     /* sets up a child object with a dynamic key name for usernames and adds it to the database. The "usernames" child will be referenced to check if name is already in use. */
     let usernameInfo = {};
     usernameInfo[newUsername] = true;
     database.ref("usernames").update(usernameInfo);
-    console.log("New player fully setup.")
+    gameProgress();
 }
 
 function gameProgress() {
@@ -182,11 +182,18 @@ function gameProgress() {
         $("#gameAlertsDiv").html("There is currently a game in progress.");
         $("#gameAlertsDiv").attr("class", alertClass + " alert-info");
         $("#gameAlertsDiv").toggle(true);
+        $("#gameChoicesDiv").toggle(false);
     }
-    else if(newUsername && !gameInProgress){
+    else if(!gameInProgress){
         console.log("There is NOT a game in progress");
-        $("#gameAlertsDiv").html("Your move! Take your pick.");
-        $("#gameAlertsDiv").attr("class", alertClass + " alert-info");
-        $("#gameAlertsDiv").toggle(true);
+        setTimeout(function() {
+            $("#gameInfoDiv").html("Your move! Take your pick.");
+            $("#gameInfoDiv").attr("class", alertClass + " alert-info");
+            $("#gameInfoDiv").toggle(true);
+            $("#gameChoicesDiv").toggle(true);
+            setTimeout(function() {
+                $("#gameInfoDiv").toggle(false)
+            }, 5000)
+        }, 1000);
     }
 }
