@@ -182,7 +182,6 @@ function gameProgress() {
         $("#gameAlertsDiv").html("There is currently a game in progress.");
         $("#gameAlertsDiv").attr("class", alertClass + " alert-info");
         $("#gameAlertsDiv").toggle(true);
-        $("#gameChoicesDiv").toggle(false);
     }
     else if(!gameInProgress){
         console.log("There is NOT a game in progress");
@@ -190,7 +189,7 @@ function gameProgress() {
             $("#gameInfoDiv").html("Your move! Take your pick.");
             $("#gameInfoDiv").attr("class", alertClass + " alert-info");
             $("#gameInfoDiv").toggle(true);
-            $("#gameChoicesDiv").toggle(true);
+            $("#gameChoicesDiv").attr("class", "row my-2");
             setTimeout(function() {
                 $("#gameInfoDiv").toggle(false)
             }, 5000)
