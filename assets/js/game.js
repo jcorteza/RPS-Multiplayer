@@ -3,7 +3,7 @@ $("#yesPlay").on("click", collapseForm);
 $("#noPlay").on("click", collapseForm);
 
 /* event listener binds submitBtn click to submitUsername */
-$("#submitBtn").on("click", submitUsername);
+$("#submitBtn").on("click", userNameValidty);
 
 /*
 if(database.ref("/player_Count")){

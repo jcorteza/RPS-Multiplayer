@@ -21,20 +21,18 @@ function collapseForm() {
     $("#playPromptDiv").add("#promptHr").toggle(false);
 }
 
-/* function handles the submit click event of #userFormDiv */
-function submitUsername(event) {
+/* function checks the validity of the user's entry on click event of #userFormDiv */
+function userNameValidty(event) {
     event.preventDefault();
     console.log("subitUsername validates form");
+    /* runs function validateFrom and returns true if valid or falise if not valid */
     let validEntry = validateForm();
     if(validEntry) {
-        console.log("Form is valid. Form sets newUsername variable.");
+        console.log("Form is valid.");
+        /* sets gloval varialbe newUsername equal to whatever the user entered */
         newUsername = $("#nameInput").val().trim();
-        $("#nameInput").val("");
-        /* function checks firebase database for value of player_Count if it exist. Then uses a returned promist to run playerSetup function */
-        playerCountSetup();
-        /* Hides the form and "Do you want to play prompt. */
-        $("#formHr").attr("class", "d-none");
-        $(".collapse").collapse("hide");
+        /* passes newUsername to checkUsername function which checks to see if the user's entry is already in use on the database */
+        checkUsername(newUsername);
     }
     else {
         console.log("Form is not valid.");
@@ -48,11 +46,8 @@ function validateForm() {
     let formValid = form.checkValidity();
     let inputValid = input.validity;
     let errorMessage;
-    if(formValid){
-        $("#gameAlertsDiv").html("That display name is <em>just</em> right!");
-        $("#gameAlertsDiv").attr("class", alertClass + " alert-success");
-        $("#gameAlertsDiv").toggle(true);
-        return formValid;
+    if(formValid) {
+        return true;
     }
     else {
         if(inputValid.badInput){
@@ -73,6 +68,7 @@ function validateForm() {
         $("#gameAlertsDiv").html(errorMessage);
         $("#gameAlertsDiv").attr("class", alertClass + " alert-danger");
         $("#gameAlertsDiv").toggle(true);
+        return false;
     }
 }
 
@@ -92,6 +88,53 @@ firebase.initializeApp(config);
 var database = firebase.database();
 var dbPlayerCount = database.ref("player_Count");
 var dbPlayers = database.ref("players");
+var dbUsernames = database.ref("usernames");
+
+/* function checks for the newUsername on the database and passes value of true or false to next function, which determins if the user can use the chosen display name and if so it is then passed to function that will set it up */
+function checkUsername(newUsername) {
+    let inUse;
+    /* Definse username query to filter results that match the newly created username. */
+    const usernameRef = dbUsernames.orderByKey().equalTo(newUsername);
+    new Promise(function(resolve) {
+        usernameRef.once("value", function(snapshot) {
+            /* if the username exists return true*/
+            if(snapshot.exists()){
+                inUse = true;
+                resolve();
+                  
+            }
+            /* if the username doesn't exists, return false */
+            else{
+                inUse = false;
+                resolve();
+            }
+        });
+    }).then(function(){
+        new Promise(function(resolve) {
+            if(inUse) {
+                console.log("Sorry, that display name is in use.");
+                $("#gameAlertsDiv").html("Sorry, that display name is in use. Try another one.");
+                $("#gameAlertsDiv").attr("class", alertClass + " alert-danger");
+                $("#gameAlertsDiv").toggle(true);
+            }
+            else if (!inUse){
+                $("#nameInput").val("");
+                /* playerCountSetup function checks firebase database for value of player_Count if it exist. Then uses a returned promise to run playerSetup function */
+                playerCountSetup();
+                /* Hides the form and "Do you want to play prompt and alerts the user their entry was successful. */
+                $("#formHr").attr("class", "d-none");
+                $(".collapse").collapse("hide");
+                $("#gameAlertsDiv").html("Enry successful: That display name is <em>just</em> right!");
+                $("#gameAlertsDiv").attr("class", alertClass + " alert-success");
+                $("#gameAlertsDiv").toggle(true);
+                setTimeout(function() {
+                    $("#gameAlertsDiv").toggle(false)
+                }, 4000);
+            }
+            resolve();
+        });
+    });
+}
 
 /* function checks if player_Count is a key that exists on firebase. If not, it sets it up with a value of 0. Otherwise it sets playerCount to the current value. */
 function playerCountSetup() {
@@ -130,13 +173,15 @@ function playerSetup(playerCount) {
     database.ref().update({
         player_Count: playerCount
     });
+    /* sets up a child object with a dynamic key name for players and adds it to the database*/
     let playerInfo = {};
     playerInfo["player" + playerCount] = {
         username: newUsername
     }
     database.ref("players").update(playerInfo);
+    /* sets up a child object with a dynamic key name for usernames and adds it to the database. The "usernames" child will be referenced to check if name is already in use. */
+    let usernameInfo = {};
+    usernameInfo[newUsername] = true;
+    database.ref("usernames").update(usernameInfo);
     console.log("New player fully setup.")
-    setTimeout(function() {
-        $("#gameAlertsDiv").toggle(false)
-    }, 4000);
 }
