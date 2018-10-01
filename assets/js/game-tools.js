@@ -1,7 +1,8 @@
 var alertClass = "row text-center alert";
-var gameInProgress = false;
+var gameInProgress;
 var newUsername;
 var userKey;
+var twoPlayers = false;
 
 /* function handles display of #userFormDiv, displaying and hiding it based on user's click. */
 function collapseForm() {
@@ -173,26 +174,4 @@ function playerSetup(playerCount) {
     usernameInfo[newUsername] = true;
     database.ref("usernames").update(usernameInfo);
     gameProgress();
-}
-
-function gameProgress() {
-    console.log("Inside gameProgress function.");
-    if(gameInProgress) {
-        console.log("There is a game in progress");
-        $("#gameAlertsDiv").html("There is currently a game in progress.");
-        $("#gameAlertsDiv").attr("class", alertClass + " alert-info");
-        $("#gameAlertsDiv").toggle(true);
-    }
-    else if(!gameInProgress){
-        console.log("There is NOT a game in progress");
-        setTimeout(function() {
-            $("#gameInfoDiv").html("Your move! Take your pick.");
-            $("#gameInfoDiv").attr("class", alertClass + " alert-info");
-            $("#gameInfoDiv").toggle(true);
-            $("#gameChoicesDiv").attr("class", "row my-2");
-            setTimeout(function() {
-                $("#gameInfoDiv").toggle(false)
-            }, 5000)
-        }, 1000);
-    }
 }
