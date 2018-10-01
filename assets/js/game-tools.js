@@ -2,7 +2,7 @@ var alertClass = "row text-center alert";
 var gameInProgress;
 var newUsername;
 var userKey;
-var twoPlayers = false;
+var spotInLine;
 
 /* function handles display of #userFormDiv, displaying and hiding it based on user's click. */
 function collapseForm() {
