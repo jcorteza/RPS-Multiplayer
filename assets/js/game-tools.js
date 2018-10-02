@@ -1,6 +1,8 @@
 var alertClass = "row text-center alert";
-var gameInProgress = false;;
+var gameInProgress;
 var newUsername;
+var userKey;
+var spotInLine;
 
 /* function handles display of #userFormDiv, displaying and hiding it based on user's click. */
 function collapseForm() {
@@ -27,7 +29,6 @@ function userNameValidty(event) {
     /* runs function validateFrom and returns true if valid or falise if not valid */
     let validEntry = validateForm();
     if(validEntry) {
-        // console.log("Form is valid.");
         /* sets gloval varialbe newUsername equal to whatever the user entered */
         newUsername = $("#nameInput").val().trim();
         /* passes newUsername to checkUsername function which checks to see if the user's entry is already in use on the database */
@@ -108,7 +109,6 @@ function checkUsername(newUsername) {
     }).then(function(){
         new Promise(function(resolve) {
             if(inUse) {
-                console.log("Sorry, that display name is in use.");
                 $("#gameAlertsDiv").html("Sorry, that display name is in use. Try another one.");
                 $("#gameAlertsDiv").attr("class", alertClass + " alert-danger");
                 $("#gameAlertsDiv").toggle(true);
@@ -132,13 +132,13 @@ function checkUsername(newUsername) {
     });
 }
 
+/*
 /* function checks if player_Count is a key that exists on firebase. If not, it sets it up with a value of 0. Otherwise it sets playerCount to the current value. */
 function playerCountSetup() {
     var playerCount;
     dbPlayerCount.once("value", function(snapshot) {
         // console.log($.type(snapshot.val()));
         if($.type(snapshot.val()) === "null"){
-            // console.log("No player count.");
             database.ref().set({
                 player_Count: 0
             });
@@ -166,7 +166,7 @@ function playerSetup(playerCount) {
     database.ref().update({
         player_Count: playerCount
     });
-    userKey = database.ref("players").push({
+    userKey = database.ref().child("players").push({
         username: newUsername
     }).key;
     console.log("User key is " + userKey);
@@ -174,39 +174,13 @@ function playerSetup(playerCount) {
     let usernameInfo = {};
     usernameInfo[newUsername] = true;
     database.ref("usernames").update(usernameInfo);
+    gameProgress();
 }
 
-/* function checks if a game is in progress */
-function gameProgress() {
-    console.log("Inside gameProgress function.");
-    if(gameInProgress) {
-        console.log("There is a game in progress.");
-        $("#gameAlertsDiv").html("There is a game in progress. There are " + playersWaiting + "players waiting in line ahead of you.");
-        $("#gameAlertsDiv").attr("class", alertClass + " alert-info");
-        $("#gameAlertsDiv").toggle(true);
-        $("#gameChoicesDiv").toggle(false);
-    }
-    else if(newUsername && !gameInProgress) {
-        console.log("There is a NOT a game in progress.");
-        $("#gameAlertsDiv").html("Your move! Pick.");
-        $("#gameAlertsDiv").attr("class", alertClass + " alert-info");
-        $("#gameAlertsDiv").toggle(true);
-        $("#gameChoicesDiv").toggle(true);
-    }
-}
+dbPlayers.onDisconnect().remove();
+dbUsernames.onDisconnect().remove();
 
-function waitingPlayers() {
-    let totalPlayers;
-    let playersWaiting;
-    dbPlayerCount.on("value", function(snapshot) {
-        totalPlayers = snapshot.val();
-        playerWaiting = totalPlayers - 3;
-        console.log("Players currently waiting in line: " + playersWaiting);
-    });  
-    if(playersWaiting > 0) {
-        gameInProgress = true;
-    }
-    else if(playersWaiting - 2 <= 0) {
-        console.log("Your turn to pick.");
-    }
-}
+/* Delete data
+The simplest way to delete data is to call remove() on a reference to the location of that data.
+
+You can also delete by specifying null as the value for another write operation such as set() or update(). You can use this technique with update() to delete multiple children in a single API call.*/
