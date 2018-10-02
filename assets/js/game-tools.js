@@ -4,8 +4,6 @@ var userKey;
 var playerCount;
 var waitingPlayers;
 var spotInLine;
-var alertClass = "row text-center alert";
-
 
 /* function handles display of #userFormDiv, displaying and hiding it based on user's click. */
 function collapseForm() {
@@ -26,16 +24,49 @@ function collapseForm() {
     $("#playPromptDiv").add("#promptHr").toggle(false);
 }
 
+function setAlert(message, color) {
+    $("#gameAlertsDiv").html(message);
+    $("#gameAlertsDiv").attr("class", "row text-center alert " + color);
+    $("#gameAlertsDiv").toggle(true);
+}
+
+function setInfo(message) {
+    $("#gameInfoDiv").html(message);
+    $("#gameInfoDiv").attr("class", "row text-center alert alert-info");
+    $("#gameInfoDiv").toggle(true);
+}
+
+/* firebase configuration variable */
+var config = {
+    apiKey: "AIzaSyAdX2ZA_iInB8Lj-U2ZSwIxESVcbc58Mik",
+    authDomain: "rps-multiplayer-17cb8.firebaseapp.com",
+    databaseURL: "https://rps-multiplayer-17cb8.firebaseio.com",
+    projectId: "rps-multiplayer-17cb8",
+    storageBucket: "rps-multiplayer-17cb8.appspot.com",
+    messagingSenderId: "802119263442"
+  };
+
+// Initialize Firebase
+firebase.initializeApp(config);
+
+var database = firebase.database();
+var dbPlayers = database.ref("players");
+var dbUsernames = database.ref("usernames");
+
 /* function checks the validity of the user's entry on click event of #userFormDiv */
 function userNameValidty(event) {
     event.preventDefault();
     /* runs function validateFrom and returns true if valid or falise if not valid */
-    let validEntry = validateForm();
+    const validEntry = validateForm();
     if(validEntry) {
         /* sets gloval varialbe newUsername equal to whatever the user entered */
         newUsername = $("#nameInput").val().trim();
         /* passes newUsername to checkUsername function which checks to see if the user's entry is already in use on the database */
-        checkUsername(newUsername);
+        const inUse = checkUsername(newUsername)
+        console.log(inUse);
+        if(!inUse) {
+            playerSetup();
+        }
     }
 }
 
@@ -65,72 +96,32 @@ function validateForm() {
         else if(inputValid.valueMissing){
             errorMessage = "Error: Display name is required, if you want to play Rock, Paper, Scissors.";
         }
-        $("#gameAlertsDiv").html(errorMessage);
-        $("#gameAlertsDiv").attr("class", alertClass + " alert-danger");
-        $("#gameAlertsDiv").toggle(true);
+        setAlert(errorMessage, "alert-danger");
         return false;
     }
 }
 
-/* firebase configuration variable */
-var config = {
-    apiKey: "AIzaSyAdX2ZA_iInB8Lj-U2ZSwIxESVcbc58Mik",
-    authDomain: "rps-multiplayer-17cb8.firebaseapp.com",
-    databaseURL: "https://rps-multiplayer-17cb8.firebaseio.com",
-    projectId: "rps-multiplayer-17cb8",
-    storageBucket: "rps-multiplayer-17cb8.appspot.com",
-    messagingSenderId: "802119263442"
-  };
-
-// Initialize Firebase
-firebase.initializeApp(config);
-
-var database = firebase.database();
-var dbPlayers = database.ref("players");
-var dbUsernames = database.ref("usernames");
-
 /* function checks for the newUsername on the database and passes value of true or false to next function, which determins if the user can use the chosen display name and if so it is then passed to function that will set it up */
 function checkUsername(newUsername) {
-    let inUse;
     /* Definse username query to filter results that match the newly created username. */
     const usernameRef = dbUsernames.orderByKey().equalTo(newUsername);
-    new Promise(function(resolve) {
-        usernameRef.once("value", function(snapshot) {
-            /* if the username exists return true*/
-            if(snapshot.exists()){
-                inUse = true;
-                resolve();
-                  
-            }
-            /* if the username doesn't exists, return false */
-            else{
-                inUse = false;
-                resolve();
-            }
-        });
-    }).then(function(){
-        new Promise(function(resolve) {
-            if(inUse) {
-                $("#gameAlertsDiv").html("Sorry, that display name is in use. Try another one.");
-                $("#gameAlertsDiv").attr("class", alertClass + " alert-danger");
-                $("#gameAlertsDiv").toggle(true);
-            }
-            else if (!inUse){
-                $("#nameInput").val("");
-                /* playerCountSetup function checks firebase database for value of player_Count if it exist. Then uses a returned promise to run playerSetup function */
-                playerSetup();
-                /* Hides the form and "Do you want to play prompt and alerts the user their entry was successful. */
-                $("#formHr").attr("class", "d-none");
-                $(".collapse").collapse("hide");
-                $("#gameAlertsDiv").html("Enry successful: That display name is <em>just</em> right!");
-                $("#gameAlertsDiv").attr("class", alertClass + " alert-success");
-                $("#gameAlertsDiv").toggle(true);
-                setTimeout(function() {
-                    $("#gameAlertsDiv").toggle(false)
-                }, 4000);
-            }
-            resolve();
-        });
+    return usernameRef.once("value", function(snapshot) {
+        /* if the username exists return true*/
+        if(snapshot.exists()){
+            setAlert("Sorry, that display name is in use. Try another one.", "alert-danger");
+            return true;
+        }
+        /* if the username doesn't exists, return false */
+        else{
+            $("#nameInput").val("");
+            $("#formHr").attr("class", "d-none");
+            $(".collapse").collapse("hide");
+            setAlert("Entry successful: That display name is <em>just</em> right!", "alert-success");
+            setTimeout(function() {
+                $("#gameAlertsDiv").toggle(false)
+            }, 4000);
+            return false;
+        }
     });
 }
 
@@ -148,5 +139,5 @@ function playerSetup() {
 
 
 
-dbPlayers.onDisconnect().orderByKey().equalTo(userKey).remove();
+dbPlayers.orderByKey().equalTo(userKey).onDisconnect().remove();
 dbUsernames.orderByKey().equalTo(newUsername).onDisconnect().remove();

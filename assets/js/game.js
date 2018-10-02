@@ -20,23 +20,17 @@ function gameProgress() {
         console.log("There is a game in progress.");
         if(spotInLine === 3) {
             setTimeout(function() {
-                $("#gameInfoDiv").html("There is a game in progress, but you're up next.");
-                $("#gameInfoDiv").attr("class", alertClass + " alert-info");
-                $("#gameInfoDiv").toggle(true);
+                setInfo("There is a game in progress, but you're up next.");
             }, 1000);
         }
         else if(spotInLine === 4) {
             setTimeout(function() {
-                $("#gameInfoDiv").html("There is a game in progress. There is currently 1 player ahead of you in line.");
-                $("#gameInfoDiv").attr("class", alertClass + " alert-info");
-                $("#gameInfoDiv").toggle(true);
+                setInfo("There is a game in progress. There is currently 1 player ahead of you in line.");
             }, 1000);
         }
         else if(spotInLine > 4) {
             setTimeout(function() {
-                $("#gameInfoDiv").html("There is a game in progress. There are currently " + waitingPlayers + " players ahead of you in line.");
-                $("#gameInfoDiv").attr("class", alertClass + " alert-info");
-                $("#gameInfoDiv").toggle(true);
+                setInfo("There is a game in progress. There are currently " + waitingPlayers + " players ahead of you in line.");
             }, 1000);
         }
     }
@@ -44,23 +38,17 @@ function gameProgress() {
         console.log("There is NOT a game in progress (i.e. both players have not made their selection), but it is not the player's turn.");
         if(spotInLine === 3) {
             setTimeout(function() {
-                $("#gameInfoDiv").html("It's not your turn now, but you're up next.");
-                $("#gameInfoDiv").attr("class", alertClass + " alert-info");
-                $("#gameInfoDiv").toggle(true);
+                setInfo("It's not your turn now, but you're up next.");
             });
         }
         else if(spotInLine === 4) {
             setTimeout(function() {
-                $("#gameInfoDiv").html("It's not your turn now. There is 1 player ahead of you in line.");
-                $("#gameInfoDiv").attr("class", alertClass + " alert-info");
-                $("#gameInfoDiv").toggle(true);
+                setInfo("It's not your turn now. There is 1 player ahead of you in line.");
             });
         }
         else if(spotInLine > 4) {
             setTimeout(function() {
-                $("#gameInfoDiv").html("It's not your turn now. There are currently " + waitingPlayers + " players ahead of you in line");
-                $("#gameInfoDiv").attr("class", alertClass + " alert-info");
-                $("#gameInfoDiv").toggle(true);
+                setInfo("It's not your turn now. There are currently " + waitingPlayers + " players ahead of you in line");
             });
         }
     }
@@ -71,9 +59,7 @@ function gameProgress() {
                 game_in_progress: false
             });
             setTimeout(function() {
-                $("#gameInfoDiv").html("Waiting on a Player 2 to start the game.");
-                $("#gameInfoDiv").attr("class", alertClass + " alert-info");
-                $("#gameInfoDiv").toggle(true);
+                setInfo("Waiting on a Player 2 to start the game.");
             }, 1000);
         }
         else {
@@ -81,9 +67,7 @@ function gameProgress() {
                 game_in_progress: true
             });
             setTimeout(function() {
-                $("#gameInfoDiv").html("Your move! Take your pick.");
-                $("#gameInfoDiv").attr("class", alertClass + " alert-info");
-                $("#gameInfoDiv").toggle(true);
+                setInfo("Your move! Take your pick.");
                 $("#gameChoicesDiv").attr("class", "row my-2");
                 setTimeout(function() {
                     $("#gameInfoDiv").toggle(false)
@@ -118,4 +102,8 @@ dbPlayers.on("value", function(snapshot) {
             resolve();
         });
     });
+
+
+    dbPlayers.orderByKey().equalTo(userKey).onDisconnect().remove();
+    dbUsernames.orderByKey().equalTo(newUsername).onDisconnect().remove();
 });
