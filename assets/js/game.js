@@ -54,6 +54,13 @@ function gameProgress() {
                         }, 5000)
                     }, 1000);
                 }
+                else {
+                    setTimeout(function() {
+                        $("#gameInfoDiv").html("It's not your turn now.");
+                        $("#gameInfoDiv").attr("class", alertClass + " alert-info");
+                        $("#gameInfoDiv").toggle(true);
+                    });
+                }
                 resolve();
             });
         });

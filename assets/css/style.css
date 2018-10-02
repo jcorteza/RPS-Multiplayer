@@ -8,9 +8,9 @@ button img {
 #gameAlertsDiv {
     display: none;
 }
-/*#gameChoicesDiv {
-    display: none;
-}*/
 #gameInfoDiv {
+    display: none;
+}
+#matchWinnerDiv {
     display: none;
 }

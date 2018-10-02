@@ -132,6 +132,7 @@ function checkUsername(newUsername) {
     });
 }
 
+/*
 /* function checks if player_Count is a key that exists on firebase. If not, it sets it up with a value of 0. Otherwise it sets playerCount to the current value. */
 function playerCountSetup() {
     var playerCount;
@@ -175,3 +176,11 @@ function playerSetup(playerCount) {
     database.ref("usernames").update(usernameInfo);
     gameProgress();
 }
+
+dbPlayers.onDisconnect().remove();
+dbUsernames.onDisconnect().remove();
+
+/* Delete data
+The simplest way to delete data is to call remove() on a reference to the location of that data.
+
+You can also delete by specifying null as the value for another write operation such as set() or update(). You can use this technique with update() to delete multiple children in a single API call.*/
