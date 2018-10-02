@@ -1,8 +1,11 @@
-var alertClass = "row text-center alert";
 var gameInProgress;
 var newUsername;
 var userKey;
+var playerCount;
+var waitingPlayers;
 var spotInLine;
+var alertClass = "row text-center alert";
+
 
 /* function handles display of #userFormDiv, displaying and hiding it based on user's click. */
 function collapseForm() {
@@ -83,7 +86,6 @@ var config = {
 firebase.initializeApp(config);
 
 var database = firebase.database();
-var dbPlayerCount = database.ref("player_Count");
 var dbPlayers = database.ref("players");
 var dbUsernames = database.ref("usernames");
 
@@ -116,7 +118,7 @@ function checkUsername(newUsername) {
             else if (!inUse){
                 $("#nameInput").val("");
                 /* playerCountSetup function checks firebase database for value of player_Count if it exist. Then uses a returned promise to run playerSetup function */
-                playerCountSetup();
+                playerSetup();
                 /* Hides the form and "Do you want to play prompt and alerts the user their entry was successful. */
                 $("#formHr").attr("class", "d-none");
                 $(".collapse").collapse("hide");
@@ -132,55 +134,19 @@ function checkUsername(newUsername) {
     });
 }
 
-/*
-/* function checks if player_Count is a key that exists on firebase. If not, it sets it up with a value of 0. Otherwise it sets playerCount to the current value. */
-function playerCountSetup() {
-    var playerCount;
-    dbPlayerCount.once("value", function(snapshot) {
-        // console.log($.type(snapshot.val()));
-        if($.type(snapshot.val()) === "null"){
-            database.ref().set({
-                player_Count: 0
-            });
-            playerCount = 0;
-        }
-        else {
-            playerCount = snapshot.val();
-        }
-        new Promise(function(resolve) {
-                resolve(playerCount);
-        }).then(successResult);
-    });
-}
-/* function handles the successful resolve of playerCountSetup promise and initiates playerSetup f */
-function successResult(playerCount) {
-    new Promise(function(resolve) {
-        playerSetup(playerCount);
-        resolve();
-    });
-}
-/* function updats player_Count on the databse and adds new user to the database */
-function playerSetup(playerCount) {
-    /*adds 1 to playerCount var, then sets database key player_Count to updated value of playerCount var */
-    playerCount++;
-    database.ref().update({
-        player_Count: playerCount
-    });
+/* function adds new user info to the database */
+function playerSetup() {
     userKey = database.ref().child("players").push({
         username: newUsername
     }).key;
-    console.log("User key is " + userKey);
     /* sets up a child object with a dynamic key name for usernames and adds it to the database. The "usernames" child will be referenced to check if name is already in use. */
     let usernameInfo = {};
     usernameInfo[newUsername] = true;
     database.ref("usernames").update(usernameInfo);
-    gameProgress();
 }
 
-dbPlayers.onDisconnect().remove();
-dbUsernames.onDisconnect().remove();
 
-/* Delete data
-The simplest way to delete data is to call remove() on a reference to the location of that data.
 
-You can also delete by specifying null as the value for another write operation such as set() or update(). You can use this technique with update() to delete multiple children in a single API call.*/
+
+dbPlayers.onDisconnect().orderByKey().equalTo(userKey).remove();
+dbUsernames.orderByKey().equalTo(newUsername).onDisconnect().remove();
